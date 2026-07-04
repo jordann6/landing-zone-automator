@@ -1,0 +1,32 @@
+# Copy to envs/demo.tfvars and fill in real values.
+# envs/demo.tfvars is gitignored: emails and anything account-identifying
+# never land in the repo.
+
+home_region     = "us-east-1"
+allowed_regions = ["us-east-1", "us-west-2"]
+
+# Every account email must be globally unique across all of AWS and cannot be
+# reused for 90 days after an account closes. Plus-aliasing with a date suffix
+# handles both, e.g. you+lza-log-20260704@example.com
+log_archive_email  = "you+lza-log-YYYYMMDD@example.com"
+notification_email = "you@example.com"
+
+account_requests = {
+  "demo-nonprod-YYYYMMDD" = {
+    email       = "you+lza-nonprod-YYYYMMDD@example.com"
+    ou          = "nonprod"
+    budget_usd  = 5
+    environment = "nonprod"
+  }
+  "demo-sandbox-YYYYMMDD" = {
+    email       = "you+lza-sandbox-YYYYMMDD@example.com"
+    ou          = "sandbox"
+    budget_usd  = 5
+    environment = "sandbox"
+  }
+}
+
+baseline_targets = ["demo-nonprod-YYYYMMDD", "demo-sandbox-YYYYMMDD"]
+
+# First apply: false. Second apply (accounts now exist): true.
+phase2_enabled = false

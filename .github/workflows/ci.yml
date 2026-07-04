@@ -1,0 +1,74 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: terraform fmt
+        run: terraform fmt -check -recursive
+
+      - name: terraform validate
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: tflint
+        uses: terraform-linters/setup-tflint@v4
+      - run: |
+          tflint --init
+          tflint --recursive
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          framework: terraform
+          check: HIGH,CRITICAL
+          quiet: true
+
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Plan runs only when the repo variable ENABLE_CI_PLAN is set, using GitHub
+  # OIDC (no static keys) and a plan-only role. It plans against the example
+  # tfvars: real tfvars are gitignored by design and never reach CI.
+  plan:
+    if: ${{ vars.ENABLE_CI_PLAN == 'true' }}
+    needs: [lint, security]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_PLAN_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: terraform plan (example values)
+        run: |
+          terraform init -backend=false
+          terraform plan -var-file=envs/demo.tfvars.example -input=false

@@ -1,0 +1,36 @@
+# Terraform state and workdirs (state contains account IDs, emails, ARNs)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+crash.*.log
+*.tfplan
+plan.out
+
+# Local overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Sensitive variable files. Only *.tfvars.example is ever committed.
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Backend config carries the real state bucket name; commit only the example
+backend.hcl
+!backend.hcl.example
+
+# Env files and credentials
+.env
+.env.*
+*.pem
+*.key
+
+# Generated diagram output
+*.png
+
+# OS noise
+.DS_Store
