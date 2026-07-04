@@ -47,11 +47,13 @@ terraform init -backend-config=backend.hcl
 # Stage 1: org, OUs, SCPs, accounts, Identity Center, budgets
 terraform apply -var-file=envs/demo.tfvars
 
-# Stage 2: flip phase2_enabled = true in envs/demo.tfvars, then
+# Stage 2: capture the new account IDs for the cross-account providers,
+# flip phase2_enabled = true in envs/demo.tfvars, then apply again
+./scripts/write-phase2-tfvars.sh
 terraform apply -var-file=envs/demo.tfvars
 ```
 
-Two stages because Terraform providers are static: the aliased providers that assume roles into the log-archive and vended accounts reference account IDs that do not exist until stage 1 finishes. This is a real-world Terraform constraint worth knowing, not a workaround for a bug.
+Two stages because Terraform provider configurations are static and must resolve at plan time: the aliased providers that assume roles into the log-archive and vended accounts need account IDs that do not exist until stage 1 finishes. The helper script copies those IDs from the stage 1 outputs into a gitignored `envs/phase2.auto.tfvars`. This is a real-world Terraform constraint worth knowing, not a workaround for a bug.
 
 Then remove each vended account's default VPC:
 

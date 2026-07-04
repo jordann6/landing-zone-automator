@@ -82,6 +82,22 @@ variable "baseline_targets" {
   }
 }
 
+# Provider assume-role ARNs must be resolvable at plan/import time, so they
+# come from variables rather than module outputs. After stage 1, run
+# scripts/write-phase2-tfvars.sh to fill these from the outputs; the file it
+# writes (envs/phase2.auto.tfvars) is gitignored like all tfvars.
+variable "log_archive_account_id" {
+  description = "Account ID of the log-archive account, written after stage 1"
+  type        = string
+  default     = "000000000000"
+}
+
+variable "baseline_account_ids" {
+  description = "account_requests key to account ID, written after stage 1"
+  type        = map(string)
+  default     = {}
+}
+
 # IAM Identity Center's organization instance can only be enabled in the
 # console (the CreateInstance API rejects management accounts). Deploy with
 # this false until that one-time click is done, then flip it.
