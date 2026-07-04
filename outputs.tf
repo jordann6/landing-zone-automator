@@ -32,5 +32,5 @@ output "log_archive_bucket" {
 
 output "sso_portal_url" {
   description = "IAM Identity Center access portal for the demo login check"
-  value       = module.identity_center.portal_url
+  value       = var.enable_identity_center ? module.identity_center[0].portal_url : null
 }

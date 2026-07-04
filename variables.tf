@@ -22,6 +22,20 @@ variable "org_access_role_name" {
   default     = "OrganizationAccountAccessRole"
 }
 
+# Applying aws_organizations_organization sets trusted service access to
+# exactly this list, so when importing an existing org, merge in whatever is
+# already enabled (aws organizations list-aws-service-access-for-organization)
+# or those integrations get disabled.
+variable "service_access_principals" {
+  description = "AWS services granted trusted access to the organization"
+  type        = list(string)
+  default = [
+    "cloudtrail.amazonaws.com",
+    "sso.amazonaws.com",
+    "account.amazonaws.com",
+  ]
+}
+
 variable "log_archive_email" {
   description = "Unique email for the log-archive account. Set in the gitignored tfvars."
   type        = string
@@ -66,6 +80,15 @@ variable "baseline_targets" {
     condition     = length(var.baseline_targets) <= 2
     error_message = "The demo supports at most 2 baseline targets."
   }
+}
+
+# IAM Identity Center's organization instance can only be enabled in the
+# console (the CreateInstance API rejects management accounts). Deploy with
+# this false until that one-time click is done, then flip it.
+variable "enable_identity_center" {
+  description = "Set true once the Identity Center instance is enabled in the console"
+  type        = bool
+  default     = true
 }
 
 # Two-stage apply: the log-archive bucket, org trail, and account baselines

@@ -5,11 +5,7 @@ resource "aws_organizations_organization" "this" {
 
   enabled_policy_types = ["SERVICE_CONTROL_POLICY"]
 
-  aws_service_access_principals = [
-    "cloudtrail.amazonaws.com",
-    "sso.amazonaws.com",
-    "account.amazonaws.com",
-  ]
+  aws_service_access_principals = var.service_access_principals
 }
 
 # --- Organizational units ---

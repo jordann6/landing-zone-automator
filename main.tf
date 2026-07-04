@@ -3,10 +3,11 @@ data "aws_caller_identity" "management" {}
 module "organization" {
   source = "./modules/organization"
 
-  name_prefix          = var.name_prefix
-  allowed_regions      = var.allowed_regions
-  log_archive_email    = var.log_archive_email
-  org_access_role_name = var.org_access_role_name
+  name_prefix               = var.name_prefix
+  allowed_regions           = var.allowed_regions
+  service_access_principals = var.service_access_principals
+  log_archive_email         = var.log_archive_email
+  org_access_role_name      = var.org_access_role_name
 }
 
 module "account_vending" {
@@ -26,6 +27,7 @@ module "account_vending" {
 
 module "identity_center" {
   source = "./modules/identity-center"
+  count  = var.enable_identity_center ? 1 : 0
 
   name_prefix           = var.name_prefix
   management_account_id = data.aws_caller_identity.management.account_id
