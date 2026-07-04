@@ -45,7 +45,7 @@ Management account
 ```hcl
 accounts = {
   "acme-nonprod" = {
-    email       = "jordandn6+lz-acme-nonprod@outlook.com"
+    email       = "you+lz-acme-nonprod@example.com"
     ou          = "nonprod"
     budget_usd  = 10
     environment = "nonprod"
@@ -113,7 +113,7 @@ No compute, no NAT gateways, no databases. Nothing here bills meaningfully while
 2. **Account closure rate limit.** AWS allows closing only 10% of member accounts (min 10) per rolling 30 days. Irrelevant at demo scale, worth documenting for the MSP framing.
 3. **IAM Identity Center enablement is manual.** Enabling the Identity Center instance is a one-time console action in the management account; Terraform manages everything inside it (permission sets, assignments) but cannot create or destroy the instance itself. Destroy leaves the empty instance enabled, which costs nothing.
 4. **Organization deletion is manual and last.** `terraform destroy` removes SCPs, OUs (after member accounts close), the trail, and Identity Center config. Deleting the Organization itself is a final console/CLI step once no member accounts remain.
-5. **Unique account emails.** Each vended account needs a globally unique email; the demo uses `jordandn6+lz-<name>@outlook.com` plus-aliasing. A closed account's email cannot be reused for 90 days, so demo names include a date suffix.
+5. **Unique account emails.** Each vended account needs a globally unique email; the demo uses `you+lz-<name>@example.com` plus-aliasing. A closed account's email cannot be reused for 90 days, so demo names include a date suffix.
 
 ## Validation checks (demo script)
 
