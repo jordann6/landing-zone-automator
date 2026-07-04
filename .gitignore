@@ -34,3 +34,6 @@ backend.hcl
 
 # OS noise
 .DS_Store
+
+# Environment-specific import shims
+import-org.tf

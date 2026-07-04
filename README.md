@@ -53,7 +53,7 @@ terraform apply -var-file=envs/demo.tfvars
 terraform apply -var-file=envs/demo.tfvars
 ```
 
-Two stages because Terraform provider configurations are static and must resolve at plan time: the aliased providers that assume roles into the log-archive and vended accounts need account IDs that do not exist until stage 1 finishes. The helper script copies those IDs from the stage 1 outputs into a gitignored `envs/phase2.auto.tfvars`. This is a real-world Terraform constraint worth knowing, not a workaround for a bug.
+Two stages because Terraform provider configurations are static and must resolve at plan time: the aliased providers that assume roles into the log-archive and vended accounts need account IDs that do not exist until stage 1 finishes. The helper script copies those IDs from the stage 1 outputs into a gitignored `phase2.auto.tfvars`. This is a real-world Terraform constraint worth knowing, not a workaround for a bug.
 
 Then remove each vended account's default VPC:
 

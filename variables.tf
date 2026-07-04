@@ -85,7 +85,7 @@ variable "baseline_targets" {
 # Provider assume-role ARNs must be resolvable at plan/import time, so they
 # come from variables rather than module outputs. After stage 1, run
 # scripts/write-phase2-tfvars.sh to fill these from the outputs; the file it
-# writes (envs/phase2.auto.tfvars) is gitignored like all tfvars.
+# writes (phase2.auto.tfvars) is gitignored like all tfvars.
 variable "log_archive_account_id" {
   description = "Account ID of the log-archive account, written after stage 1"
   type        = string

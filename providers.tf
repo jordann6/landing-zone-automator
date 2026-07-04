@@ -7,18 +7,18 @@ provider "aws" {
 }
 
 # The aliased providers assume the org access role into member accounts.
-# Provider configurations must be resolvable at plan and import time, so the
-# account IDs come from variables (filled by scripts/write-phase2-tfvars.sh
-# after stage 1) rather than module outputs. Until then they point at a dummy
-# account ID, and phase2_enabled keeps every resource that would use them out
-# of the graph.
+# Terraform configures every declared provider during plan, and provider
+# configurations must be resolvable then, so the account IDs come from
+# variables (filled by scripts/write-phase2-tfvars.sh after stage 1) rather
+# than module outputs, and role_arn collapses to null while phase2_enabled
+# is false so the providers configure without assuming anything.
 
 provider "aws" {
   alias  = "log_archive"
   region = var.home_region
 
   assume_role {
-    role_arn = "arn:aws:iam::${var.log_archive_account_id}:role/${var.org_access_role_name}"
+    role_arn = var.phase2_enabled ? "arn:aws:iam::${var.log_archive_account_id}:role/${var.org_access_role_name}" : null
   }
 
   default_tags {
@@ -31,7 +31,7 @@ provider "aws" {
   region = var.home_region
 
   assume_role {
-    role_arn = "arn:aws:iam::${lookup(var.baseline_account_ids, try(var.baseline_targets[0], ""), "000000000000")}:role/${var.org_access_role_name}"
+    role_arn = var.phase2_enabled ? "arn:aws:iam::${lookup(var.baseline_account_ids, try(var.baseline_targets[0], ""), "000000000000")}:role/${var.org_access_role_name}" : null
   }
 
   default_tags {
@@ -44,7 +44,7 @@ provider "aws" {
   region = var.home_region
 
   assume_role {
-    role_arn = "arn:aws:iam::${lookup(var.baseline_account_ids, try(var.baseline_targets[1], ""), "000000000000")}:role/${var.org_access_role_name}"
+    role_arn = var.phase2_enabled ? "arn:aws:iam::${lookup(var.baseline_account_ids, try(var.baseline_targets[1], ""), "000000000000")}:role/${var.org_access_role_name}" : null
   }
 
   default_tags {
