@@ -1,11 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-    }
-  }
-}
-
 # Runs inside a vended account via an assumed-role provider passed from root.
 # Default VPC deletion is handled by scripts/delete-default-vpc.sh as a deploy
 # step, since Terraform has no resource that deletes a default VPC.

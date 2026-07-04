@@ -47,9 +47,10 @@ jobs:
           quiet: true
 
       - name: gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          GITLEAKS_VERSION=8.24.3
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar -xz gitleaks
+          ./gitleaks detect --source . --redact
 
   # Plan runs only when the repo variable ENABLE_CI_PLAN is set, using GitHub
   # OIDC (no static keys) and a plan-only role. It plans against the example

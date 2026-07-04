@@ -1,12 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source                = "hashicorp/aws"
-      configuration_aliases = [aws.log_archive]
-    }
-  }
-}
-
 locals {
   bucket_name = "${var.name_prefix}-org-trail-${var.log_archive_account_id}"
 }
