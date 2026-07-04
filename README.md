@@ -8,6 +8,8 @@ Built for the gap between "one shared account with a root login" and "we need Co
 - **SaaS teams vending environments.** Dev, staging, and prod accounts per product from a request block. The small-scale version of the account vending pattern platform teams run internally.
 - **MSPs onboarding clients.** New client, day one: an account lands inside guardrails with logging, budgets, and access wired. A recurring workflow, not a one-time script.
 
+![Architecture](docs/architecture.png)
+
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the full design, cost model, and teardown risk notes.
 
 ## What gets built

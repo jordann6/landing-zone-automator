@@ -29,8 +29,9 @@ backend.hcl
 *.pem
 *.key
 
-# Generated diagram output
+# Generated diagram output (committed copy lives in docs/)
 *.png
+!docs/architecture.png
 
 # OS noise
 .DS_Store
