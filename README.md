@@ -87,13 +87,17 @@ terraform import module.organization.aws_organizations_organization.this <org-id
 terraform destroy -var-file=envs/demo.tfvars
 ```
 
-`close_on_deletion = true` means destroy closes the vended accounts rather than orphaning them. Then the manual tail, in order:
+`close_on_deletion = true` means destroy closes the vended accounts rather than orphaning them. Cleanest as two passes: first destroy the cross-account resources while the accounts still exist (`-target=module.baseline_a -target=module.baseline_b -target=module.log_archive`), then run the full destroy.
 
-1. **Closed accounts linger.** AWS suspends closed accounts for 90 days before purging; they stay visible in the org but bill nothing. Their emails cannot be reused during that window, hence the date-suffixed names.
-2. **Object-locked log objects.** Retention is governance mode at 1 day; if destroying same-day, the bucket's `force_destroy` handles current versions and locked versions clear after a day. Re-run destroy the next day if S3 refuses.
-3. **Identity Center instance** stays enabled (console-only to disable; costs nothing).
-4. **Delete the Organization** last, from the console or `aws organizations delete-organization`, once all member accounts are closed.
-5. Sweep for leftovers: `aws organizations list-accounts`, `aws cloudtrail list-trails`, the state bucket entry.
+Lessons from running this teardown for real:
+
+1. **Closed accounts linger and block OU deletion.** AWS suspends closed accounts for 90 days before purging; they stay visible in the org, bill nothing, and remain inside their OU, which makes `DeleteOrganizationalUnit` fail with `OrganizationalUnitNotEmptyException`. Move the suspended accounts to the org root (`aws organizations move-account`) and re-run destroy. Their emails cannot be reused during the window, hence the date-suffixed names.
+2. **Account closure outruns the provider's waiter.** The AWS provider waits 10 minutes for an account to leave ACTIVE; real closure took ~11. If the destroy times out but the account shows SUSPENDED, `terraform state rm` it and continue.
+3. **Emptying `account_requests` for the final pass.** Once the vended accounts are gone from state, SSO assignment `for_each` values derived from them become unknowable and destroy refuses to plan; set `account_requests = {}` and `baseline_targets = []` for the last run.
+4. **Object-locked log objects.** Retention is governance mode at 1 day; the bucket's `force_destroy` handled same-day deletion of governance-locked versions cleanly on AWS provider 5.100.
+5. **Identity Center instance** stays enabled (console-only to disable; costs nothing). Groups, permission sets, and assignments all destroy cleanly.
+6. **The Organization itself.** If it was imported (pre-existing org), `terraform state rm module.organization.aws_organizations_organization.this` before destroying so the org survives. Only delete the org if this project created it, and then only after all member accounts purge.
+7. Sweep for leftovers: `aws organizations list-accounts` and `list-policies`, `aws cloudtrail list-trails`, `aws budgets describe-budgets`, `aws s3 ls`, permission sets, and the KMS key (lands in PendingDeletion, unbilled).
 
 ## Repo layout
 
